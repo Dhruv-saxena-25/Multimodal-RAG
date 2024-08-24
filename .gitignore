@@ -121,6 +121,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
+multirag
 
 
 # Spyder project settings
