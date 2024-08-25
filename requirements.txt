@@ -1,0 +1,11 @@
+faiss-cpu
+langchain
+python-dotenv
+fastapi
+jinja2
+python-multipart
+uvicorn
+langchain_core
+langchain-google-genai
+langchain
+langchain_community
