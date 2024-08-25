@@ -1,13 +1,17 @@
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
-from langchain.prompts import ChatPromptTemplate
+from langchain.chains import LLMChain
+from langchain.prompts import PromptTemplate
+from langchain.schema.messages import HumanMessage, SystemMessage
+from langchain.schema.document import Document
 from langchain_community.vectorstores import FAISS
-from fastapi import FastAPI, Request, Form
+from langchain.retrievers.multi_vector import MultiVectorRetriever
+from fastapi import FastAPI, Request, Form, Response, File, UploadFile
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
+from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnablePassthrough
 import json
 import os
 import uuid
@@ -30,9 +34,7 @@ app.add_middleware(
 
 embedding=GoogleGenerativeAIEmbeddings(model="models/embedding-001")
 
-vectorstore = FAISS.load_local("faiss_index", embedding, allow_dangerous_deserialization= True)
-
-retriever = vectorstore.as_retriever()
+db = FAISS.load_local("faiss_index", embedding, allow_dangerous_deserialization= True)
 
 prompt_template = """You are a vet doctor and an expert in analyzing dog's health.
 Answer the question based only on the following context, which can include text, images and tables:
@@ -42,16 +44,13 @@ Don't answer if you are not sure and decline to answer and say "Sorry, I don't h
 Just return the helpful answer in as much as detailed possible.
 Answer:
 """
-model=ChatGoogleGenerativeAI(model="gemini-1.5-flash", max_tokens=1024)
-prompt=ChatPromptTemplate.from_template(prompt_template)
+llm=ChatGoogleGenerativeAI(model="gemini-1.5-flash", max_tokens=1024)
+prompt=PromptTemplate.from_template(prompt_template)
 
+qa_chain = LLMChain(llm=ChatGoogleGenerativeAI(model="gemini-1.5-pro", max_tokens=1024),
+                        prompt=PromptTemplate.from_template(prompt_template))
 
-chain = (
-    {"context": retriever, "question": RunnablePassthrough()}
-    | prompt
-    | model
-    | StrOutputParser()
-)
+# qa_chain = prompt | llm | StrOutputParser()
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
@@ -59,7 +58,7 @@ async def index(request: Request):
 
 @app.post("/get_answer")
 async def get_answer(question: str = Form(...)):
-    relevant_docs = retriever.similarity_search(question)
+    relevant_docs = db.similarity_search(question)
     context = ""
     relevant_images = []
     for d in relevant_docs:
@@ -70,6 +69,6 @@ async def get_answer(question: str = Form(...)):
         elif d.metadata['type'] == 'image':
             context += '[image]' + d.page_content
             relevant_images.append(d.metadata['original_content'])
-    result = chain.invoke(question)
+    result = qa_chain.run({'context': context, 'question': question})
     return JSONResponse({"relevant_images": relevant_images[0], "result": result})
 

@@ -9,3 +9,5 @@ langchain_core
 langchain-google-genai
 langchain
 langchain_community
+tiktoken
+openai
