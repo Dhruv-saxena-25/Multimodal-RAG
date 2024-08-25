@@ -22,4 +22,7 @@ pip install -r requirements.txt
 uvicorn app:app
 ```
 
-
+### To know about Multimodal RAG
+```bash
+https://blog.langchain.dev/semi-structured-multi-modal-rag/
+```
