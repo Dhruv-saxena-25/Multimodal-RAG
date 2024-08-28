@@ -6,6 +6,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS, cross_origin
+from IPython.display import Markdown as md
 import os 
 from dotenv import load_dotenv
 load_dotenv()
@@ -60,6 +61,10 @@ def get_answer():
         | model
         | StrOutputParser()
         )
+        if len(relevant_images) !=0:
+            pass
+        else:
+            relevant_images = ["No Image To Display..."]
         answer= chain.invoke(question)
         return render_template("index.html", results= answer, image = relevant_images[0])
         
