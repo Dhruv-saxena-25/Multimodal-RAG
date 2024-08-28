@@ -4,25 +4,13 @@ from langchain.prompts import ChatPromptTemplate
 from langchain_community.vectorstores import FAISS
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
-from flask import Flask, render_template, request, Response
+from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS, cross_origin
-import os
+import os 
 from dotenv import load_dotenv
 load_dotenv()
 os.environ["GOOGLE_API_KEY"] = os.getenv("GOOGLE_API_KEY")
 
-import base64
-from PIL import Image
-import io
-def display_base64_image(base64_string):
-    """Decodes base64 string and displays the image"""
-
-    # Decode the base64 string
-    decoded_bytes = base64.b64decode(base64_string)
-    # Open the image using PIL
-    image = io.BytesIO(decoded_bytes)
-    # Display the image
-    return image.seek(0)
 
 embedding=GoogleGenerativeAIEmbeddings(model="models/embedding-001")
 vectorstore =FAISS.load_local("faiss_index", embedding, allow_dangerous_deserialization= True)
@@ -36,13 +24,14 @@ Just return the helpful answer in as much as detailed possible.
 Answer:
 
 """
-model=ChatGoogleGenerativeAI(model="gemini-1.5-flash", max_tokens=1024)
+model=ChatGoogleGenerativeAI(model="gemini-1.5-flash")
 prompt=ChatPromptTemplate.from_template(prompt_template)
 
 
 application=Flask(__name__)
 CORS(application)
 app=application
+
 
 @app.route("/", methods=['GET'])
 @cross_origin()
@@ -74,8 +63,6 @@ def get_answer():
         answer= chain.invoke(question)
         return render_template("index.html", results= answer, image = relevant_images[0])
         
-
-
-
 if __name__ == '__main__':
     app.run(debug= True, host='0.0.0.0')
+

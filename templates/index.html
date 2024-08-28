@@ -106,7 +106,12 @@
             <pre style="white-space: pre-wrap; overflow: auto;">
             </pre>
             <strong>{{results}}</strong>
-            <img alt="" src="data:image/png;base64,{{image}}" />
+            {% if image %}
+                <img alt="" src="data:image/png;base64,{{image}}" />
+            {% else %}
+                {{None}}
+            {% endif %}
+                
         </div>
 
         <!-- <div class="bg-white drop-shadow-2xl w-full sm:w-4/6  text-xl sm:p-4">
