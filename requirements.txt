@@ -11,3 +11,8 @@ langchain
 langchain_community
 tiktoken
 openai
+flask
+unstructured[all-docs] 
+pydantic 
+lxml 
+opencv-python

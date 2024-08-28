@@ -1,165 +1,122 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>Multimodal RAG App</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400&display=swap" rel="stylesheet">
-    <style>
-        body {
-            background-color: #121212;
-            color: #fff;
-            font-family: 'Ubuntu', sans-serif;
-        }
-        .container {
-            position: absolute;
-            top: 40%; /* Adjusted for space below */
-            left: 50%;
-            transform: translate(-50%, -40%);
-            text-align: center;
-        }
-        .title {
-            font-size: 48px;
-            font-weight: 300;
-            margin-bottom: 40px;
-        }
-        .input-box {
-            background-color: #202124;
-            border: none;
-            border-radius: 24px;
-            padding: 24px;
-            width: 100%;
-            color: #fff;
-            height: 100px;
-            font-size: 16px;
-            resize: none;
-            display: block;
-            margin: 0 auto 20px auto;
-        }
-        .input-box::placeholder {
-            color: #9e9e9e;
-        }
-        .input-box:focus {
-            outline: none;
-            box-shadow: none;
-        }
-        .theme-switcher {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            cursor: pointer;
-        }
-        .theme-icon {
-            color: #fff;
-            font-size: 24px;
-        }
-        .optimize-btn {
-            background-color: #16f9f6;
-            border: none;
-            border-radius: 24px;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            display: block;
-            margin: 0 auto; /* Center the button */
-        }
-        .response-card {
-            background-color: #333333;
-            border-radius: 16px;
-            padding: 20px;
-            margin-top: 20px;
-            display: none; /* Initially hidden */
-        }
 
-        #loader {
-            display: none;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multimodal RAG</title>
+<script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
-    <div class="container">
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="title">Multimodal RAG App</div>
-                <textarea class="input-box" placeholder="Enter your Query" id="promptInput"></textarea>
-                <div class="mb-5 text-end">                    
-                    <button class="btn btn-md btn-info me-3 ps-4 pe-4" onclick="optimizePrompt()"><b>Ask</b></button>
-                </div>
-                <div id="loader" class="">
-                    <div class="spinner-border text-info" role="status">
-                        <span class="visually-hidden">Loading...</span>
+<section>
+    <div class="bg-white  ">
+        <div class="relative isolate overflow-hidden bg-gradient-to-b from-gray-200/50 ">
+            <div class="mx-auto   max-w-7xl pb-24 pt-10 sm:pb-32 lg:grid lg:grid-cols-2 lg:gap-x-8 lg:px-8 lg:py-40">
+                <div class="px-6 lg:px-0 lg:pt-4 ">
+                    <div class="mx-auto max-w-2xl  ">
+                        <div class="max-w-lg ">
+                            
+                            <div class="mt-24 sm:mt-32 lg:mt-16">
+                                <a href="#" class="inline-flex space-x-6">
+                                    <img class="h-11 " src="https://res.cloudinary.com/dtsuvx8dz/image/upload/v1713098667/h9rdveukfprcd4fazrlr.png"
+                                        alt="Your Company">
+                                    <span
+                                        class="inline-flex items-center space-x-2 text-sm  leading-6 text-gray-600 font-mono tracking-wide">
+                                        <span><span class="font-semibold">CONCEPT4 </span>| <span class="text-transparent bg-clip-text bg-gradient-to-t from-rose-400 via-fuchsia-500 to-indigo-500 font-bold">Multimodal RAG Chatbot</span></span>
+                                        <svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor"
+                                            aria-hidden="true">
+                                            <path fill-rule="evenodd"
+                                                d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
+                                                clip-rule="evenodd" />
+                                        </svg>
+                                    </span>
+                                </a>
+                            </div>
+                            <h1 class="mt-10 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">Converse with Ease: Your Multimodal RAG Chatbot Companion</h1>
+                            <p class="mt-6 text-lg leading-8 text-gray-600">Unlock the power of conversational AI to effortlessly navigate through multiple documents. Simplify research, streamline
+                            information retrieval, and elevate productivity with our intuitive chatbot interface
+                            </p>
+                            <!-- <div class="mt-10 flex items-center gap-x-6">
+                                <a href="#"
+                                    class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Documentation</a>
+                                <a href="#" class="text-sm font-semibold leading-6 text-gray-900">View on GitHub <span
+                                        aria-hidden="true">→</span></a>
+                            </div> -->
+                        </div>
                     </div>
                 </div>
-                <div class="response-card text-start" id="responseCard">
-                    
-                </div>
+                <div class="mt-20 sm:mt-64 md:mx-auto md:max-w-2xl lg:mx-0 lg:mt-0 lg:w-screen flex justify-center items-center ">
+
+
+                                       
+                                           <img src="https://res.cloudinary.com/dtsuvx8dz/image/upload/v1712987021/ghzgwi4mxevqrt0lxefw.png" class="drop-shadow-2xl" height="350" width="350" alt="">
+                                      
+                                        
+                                    
+                               
+                                <div class="pointer-events-none absolute inset-0 ring-1 ring-inset ring-black/10 md:rounded-3xl"
+                                    aria-hidden="true"></div>
+               
             </div>
+            <div class="absolute inset-x-0 bottom-0 -z-10 h-24 bg-gradient-to-t from-white sm:h-32"></div>
+        </div>
+    </div>
+</section>
+<section class="  " >
+    <div class="space-y-5 divide-y divide-gray-900/10 max-w- flex  justify-center bg-gradient-to-t from-gray-900/5 py-12">
+
+        <div class="grid grid-cols-1 gap-x-8 gap-y-8 pt-4 md:grid-cols-3 ">
+            <div class="px-4 sm:px-0">
+                <h2 class="text-2xl font-bold leading-7 text-transparent bg-clip-text bg-gradient-to-tl from-rose-400 via-fuchsia-500 to-indigo-500 ">Multimodal RAG Chatbot</h2>
+                <p class="mt-1 text-md leading-6 text-gray-600">Please provide accurate information to Chatbot.</p>
+                <img src="https://res.cloudinary.com/dtsuvx8dz/image/upload/v1712990769/rp7adpujhtdh6d7odlir.png" width="300" height="300" alt="">
+            </div>
+    
+            <form action="/get_answer", method="post" class="  sm:rounded-xl md:col-span-2 drop-shadow-md ">
+                <div class="px-4 py-6 sm:p-8 bg-white shadow-sm">
+
+                    <div class="grid max-w-2xl ">
+                        <div class="sm:col-span-4">
+                            <label for="question" class="block text-sm font-medium leading-8 text-gray-900">Ask a Question</label>
+                            <div class="mt-2 ">
+                                <textarea type="question" name="question" style="text-align:left;" rows="5" cols="50" class="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6">
+
+                                </textarea>
+                                <!-- <input  type="question" name="question"
+                                    class="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"> -->
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="flex bg-white shadow-sm items-start justify-start gap-x-6 border-t border-gray-900/10 w-3xl py-4 sm:px-8">
+                   
+                    <input type="submit" value="submit" 
+                        class="rounded-md bg-gradient-to-tr from-rose-400 via-fuchsia-500 to-indigo-500 px-3 py-3 text-sm font-base text-white shadow-sm hover:bg-pink-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 w-40 "></input>
+                </div>
+            </form>
         </div>
         
-    </div>
-    <div class="theme-switcher" onclick="toggleTheme()">
-        <i class="fas fa-adjust theme-icon"></i>
-    </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
-    <script>
-        function toggleTheme() {
-            var body = document.body;
-            body.classList.toggle('light-theme');
-            body.classList.toggle('dark-theme');
-            var themeIcon = document.querySelector('.theme-icon');
-            if (body.classList.contains('light-theme')) {
-                themeIcon.classList.remove('fa-moon');
-                themeIcon.classList.add('fa-sun');
-                body.style.backgroundColor = '#f0f0f0';
-                body.style.color = '#121212';
-            } else {
-                themeIcon.classList.remove('fa-sun');
-                themeIcon.classList.add('fa-moon');
-                body.style.backgroundColor = '#121212';
-                body.style.color = '#fff';
-            }
-        }
-
-        async function optimizePrompt() {
-            var promptInput = document.getElementById('promptInput').value;
-            var responseCard = document.getElementById('responseCard');
-            var loader = document.getElementById('loader');
-
-            // Display loader while fetching data
-            loader.style.display = 'block';
-            responseCard.style.display = 'none';
-            try {
-                const formData = new FormData();
-                formData.append('question', promptInput);
-
-                let resp = await fetch('/get_answer', {
-                    method: 'POST',
-                    body: formData
-                });
-                // console.log("response",await resp.json());
-                
-                let data = await resp.json();
-                responseCard.innerHTML = `
-                    <div class="row">
-                        <div class="col-sm-8">
-                            <h6><b>Question:</b> ${promptInput}</h6>
-                            <h6><b>Answer:</b> ${data.result}</h6>
-                        </div>
-                        <div class="col-sm-4">
-                            <img src="data:image/jpeg;base64, ${data.relevant_images}" alt="" width="100%" height="auto">
-                        </div>
-                    </div>
-                `;
-            } catch (error) {
-                responseCard.innerHTML = `<p>Error: ${error.message}</p>`;
-            }
-            loader.style.display = 'none';
-            responseCard.style.display = 'block';
         
-        }
+    </div>
+    <div class="flex flex-col items-center  justify-center bg-gradient-to-b from-gray-900/5 py-2">
+        <div class="bg-white drop-shadow-2xl w-full sm:w-4/6 my-2  text-xs sm:text-xl p-2 sm:p-4 text-justify">
+            <pre style="white-space: pre-wrap; overflow: auto;">
+            </pre>
+            <strong>{{results}}</strong>
+            <img alt="" src="data:image/png;base64,{{image}}" />
+        </div>
 
-        // Initial theme setup
-        document.body.classList.add('dark-theme');
-    </script>
+        <!-- <div class="bg-white drop-shadow-2xl w-full sm:w-4/6  text-xl sm:p-4">
+            
+        </div> -->
+
+    </div>
+    
+    
+</section>
+
 </body>
 </html>
