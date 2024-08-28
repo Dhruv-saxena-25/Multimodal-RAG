@@ -6,11 +6,18 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS, cross_origin
-from IPython.display import Markdown as md
 import os 
 from dotenv import load_dotenv
 load_dotenv()
 os.environ["GOOGLE_API_KEY"] = os.getenv("GOOGLE_API_KEY")
+
+
+
+
+
+
+
+
 
 
 embedding=GoogleGenerativeAIEmbeddings(model="models/embedding-001")
@@ -25,7 +32,7 @@ Just return the helpful answer in as much as detailed possible.
 Answer:
 
 """
-model=ChatGoogleGenerativeAI(model="gemini-1.5-flash")
+model=ChatGoogleGenerativeAI(model="gemini-1.5-flash", jsonify=True)
 prompt=ChatPromptTemplate.from_template(prompt_template)
 
 
