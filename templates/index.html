@@ -72,11 +72,15 @@
                 <img src="https://res.cloudinary.com/dtsuvx8dz/image/upload/v1712990769/rp7adpujhtdh6d7odlir.png" width="300" height="300" alt="">
             </div>
     
-            <form action="/get_answer", method="post" class="  sm:rounded-xl md:col-span-2 drop-shadow-md ">
+            <form action="/get_answer", method="post", class="sm:rounded-xl md:col-span-2 drop-shadow-md", enctype="multipart/form-data">
                 <div class="px-4 py-6 sm:p-8 bg-white shadow-sm">
-
                     <div class="grid max-w-2xl ">
                         <div class="sm:col-span-4">
+                            <!-- <label class="block text-sm font-medium leading-8 text-gray-900">Upload PDF File</label>
+                            <div class="mt-2">
+                                <input type="file" accept=".pdf" , name="file" required class="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6">
+                            </div> -->
+
                             <label for="question" class="block text-sm font-medium leading-8 text-gray-900">Ask a Question</label>
                             <div class="mt-2 ">
                                 <textarea type="question" name="question" style="text-align:left;" rows="5" cols="50" class="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6">
@@ -87,9 +91,7 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
-
 
                 <div class="flex bg-white shadow-sm items-start justify-start gap-x-6 border-t border-gray-900/10 w-3xl py-4 sm:px-8">
                    
@@ -101,23 +103,17 @@
         
         
     </div>
+    
     <div class="flex flex-col items-center  justify-center bg-gradient-to-b from-gray-900/5 py-2">
         <div class="bg-white drop-shadow-2xl w-full sm:w-4/6 my-2  text-xs sm:text-xl p-2 sm:p-4 text-justify">
-            <pre style="white-space: pre-wrap; overflow: auto;">
-                <strong>{{results}}</strong>
-            </pre>
-            <img alt="" src="data:image/png;base64,{{image}}" />
-         
-        </div>
+        <strong>{{results}}</strong>    
+        <img alt="" src="data:image/png;base64,{{image}}" /> 
+    </div>
 
         <!-- <div class="bg-white drop-shadow-2xl w-full sm:w-4/6  text-xl sm:p-4">
             
         </div> -->
-
     </div>
-    
-    
 </section>
-
 </body>
 </html>

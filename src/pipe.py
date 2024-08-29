@@ -1,8 +1,6 @@
 import os
 import uuid
 import base64
-import tqdm as notebook_tqdm
-from IPython import display
 from unstructured.partition.pdf import partition_pdf
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
@@ -15,9 +13,22 @@ from langchain.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 import warnings
 warnings.filterwarnings("ignore")
-os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
+os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 output_path = "./imgs"
+
+prompt_template = """
+You are an expert in maths question solving guides that contains specification, features, etc.
+Answer the question based only on the following context, which can include text, images and tables:
+{context}
+Question: {question}
+Don't answer if you are not sure and decline to answer and say "Sorry, I don't have much information about it."
+Just return the helpful answer in as much as detailed possible.
+Answer:
+"""
+
+prompt = ChatPromptTemplate.from_template(prompt_template)
+model = ChatGoogleGenerativeAI(temperature=0, model="gemini-1.5-pro")
 
 # Get elements
 def get_elements(file_path):
@@ -60,6 +71,8 @@ def extract_elements(raw_pdf_elements):
             table_summaries.append(summary)
     return table_elements, text_elements, table_summaries, text_summaries
 
+
+
 # Get image summaries
 image_elements = []
 image_summaries = []
@@ -84,8 +97,19 @@ def summarize_image(encoded_image):
             },
         ])
     ]
+    for i in os.listdir(output_path):
+        if i.endswith(('.png', '.jpg', '.jpeg')):
+            image_path = os.path.join(output_path, i)
+            encoded_image = encode_image(image_path)
+            image_elements.append(encoded_image)
+            summary = summarize_image(encoded_image)
+            image_summaries.append(summary)
     response = ChatGoogleGenerativeAI(model="gemini-1.5-flash").invoke(prompt)
     return response.content
+
+def image_context():
+    pass
+
 
 
 def vectorize(text_elements, text_summaries, table_elements, table_summaries):
@@ -131,21 +155,8 @@ def vectorize(text_elements, text_summaries, table_elements, table_summaries):
         documents.append(doc)
 
     vectorstore = FAISS.from_documents(documents=documents, embedding=GoogleGenerativeAIEmbeddings(model="models/embedding-001"))
-    vectorstore.save_local("faiss")
+    vectorstore.save_local("faiss_indexs")
     return vectorstore
-
-prompt_template = """
-You are an expert in maths question solving guides that contains specification, features, etc.
-Answer the question based only on the following context, which can include text, images and tables:
-{context}
-Question: {question}
-Don't answer if you are not sure and decline to answer and say "Sorry, I don't have much information about it."
-Just return the helpful answer in as much as detailed possible.
-Answer:
-"""
-
-prompt = ChatPromptTemplate.from_template(prompt_template)
-model = ChatGoogleGenerativeAI(temperature=0, model="gemini-1.5-pro")
 
 def answer(question, vectorstore):
     relevant_docs = vectorstore.similarity_search(question)
@@ -167,17 +178,3 @@ def answer(question, vectorstore):
     result= chain.invoke(question)
     print(result)
     return result, relevant_images
-
-if __name__ == '__main__':
-    raw_pdf_elements= get_elements("HKDSE_PHYSICS_PAST_PAPER_1_ENG.pdf")
-    table_elements, text_elements, table_summaries, text_summaries = extract_elements(raw_pdf_elements)
-    for i in os.listdir(output_path):
-        if i.endswith(('.png', '.jpg', '.jpeg')):
-            image_path = os.path.join(output_path, i)
-            encoded_image = encode_image(image_path)
-            image_elements.append(encoded_image)
-            summary = summarize_image(encoded_image)
-            image_summaries.append(summary)
-    vectorstore =vectorize(table_elements, text_elements, table_summaries, text_summaries)
-    q = "As shown above, a ray of light travels from medium 1 to medium 2, and then enters medium 3. The boundaries are parallel to each other. Arrange the speed of light, c, in the three media in ascending order."
-    ans, rel_img = answer(q, vectorstore)

@@ -12,14 +12,6 @@ load_dotenv()
 os.environ["GOOGLE_API_KEY"] = os.getenv("GOOGLE_API_KEY")
 
 
-
-
-
-
-
-
-
-
 embedding=GoogleGenerativeAIEmbeddings(model="models/embedding-001")
 vectorstore =FAISS.load_local("faiss_index", embedding, allow_dangerous_deserialization= True)
 
