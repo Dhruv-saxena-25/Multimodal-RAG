@@ -1,8 +1,6 @@
 import os
 import uuid
 import base64
-import tqdm as notebook_tqdm
-from IPython import display
 from unstructured.partition.pdf import partition_pdf
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
@@ -13,12 +11,16 @@ from langchain.chains import LLMChain
 from langchain_core.output_parsers import StrOutputParser
 from langchain.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
+from flask import Flask,request,render_template
+from werkzeug.utils import secure_filename
 import warnings
 warnings.filterwarnings("ignore")
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
-output_path = "./imgs"
+documents = []
+retrieve_contents = []
 
+output_path = "./imgs"
 # Get elements
 def get_elements(file_path):
     raw_pdf_elements = partition_pdf(
@@ -90,9 +92,6 @@ def summarize_image(encoded_image):
 
 def vectorize(text_elements, text_summaries, table_elements, table_summaries):
     # Create Documents and Vectorstore
-    documents = []
-    retrieve_contents = []
-
     for e, s in zip(text_elements, text_summaries):
         i = str(uuid.uuid4())
         doc = Document(
@@ -129,7 +128,6 @@ def vectorize(text_elements, text_summaries, table_elements, table_summaries):
         )
         retrieve_contents.append((i, s))
         documents.append(doc)
-
     vectorstore = FAISS.from_documents(documents=documents, embedding=GoogleGenerativeAIEmbeddings(model="models/embedding-001"))
     vectorstore.save_local("faiss")
     return vectorstore
@@ -143,9 +141,10 @@ Don't answer if you are not sure and decline to answer and say "Sorry, I don't h
 Just return the helpful answer in as much as detailed possible.
 Answer:
 """
-
+embedding=GoogleGenerativeAIEmbeddings(model="models/embedding-001")
 prompt = ChatPromptTemplate.from_template(prompt_template)
 model = ChatGoogleGenerativeAI(temperature=0, model="gemini-1.5-pro")
+
 
 def answer(question, vectorstore):
     relevant_docs = vectorstore.similarity_search(question)
@@ -168,16 +167,83 @@ def answer(question, vectorstore):
     print(result)
     return result, relevant_images
 
+
+
+application=Flask(__name__)
+app=application
+
+## Route for a home page
+
+@app.route('/')
+def index():
+    return render_template('first.html')
+
+@app.route('/start', methods=['GET','POST'])
+def start():
+    if request.method == 'POST':
+        os.makedirs("docs", exist_ok= True)
+        file = request.files['file']
+        print(file)
+        if file:
+            file_path = os.path.join("docs/" + secure_filename(file.filename))
+            file.save(file_path)
+            raw_pdf_elements= get_elements(file_path)
+            table_elements, text_elements, table_summaries, text_summaries = extract_elements(raw_pdf_elements)
+            for i in os.listdir(output_path):
+                if i.endswith(('.png', '.jpg', '.jpeg')):
+                    image_path = os.path.join(output_path, i)
+                    encoded_image = encode_image(image_path)
+                    image_elements.append(encoded_image)
+                    summary = summarize_image(encoded_image)
+                    image_summaries.append(summary)
+            vectorstore = vectorize(table_elements, text_elements, table_summaries, text_summaries)
+            return render_template("index.html")
+
+# vectorstore =FAISS.load_local("faiss_index", embedding, allow_dangerous_deserialization= True)
+
+@app.route("/get_answer",  methods=["POST"])
+def get_answer():
+    if request.method == "POST":
+        question = request.form['question']
+        vectorstore = FAISS.from_documents(documents=documents, embedding=GoogleGenerativeAIEmbeddings(model="models/embedding-001"))
+        relevant_docs = vectorstore.similarity_search(question)
+        context = ""
+        relevant_images = []
+        for d in relevant_docs:
+            if d.metadata['type'] == 'text':
+                context += '[text]' + d.metadata['original_content']
+            elif d.metadata['type'] == 'table':
+                context += '[table]' + d.metadata['original_content']
+            elif d.metadata['type'] == 'image':
+                context += '[image]' + d.page_content
+                relevant_images.append(d.metadata['original_content'])
+        chain = (
+        {"context": lambda x: context, "question": RunnablePassthrough()}
+        | prompt
+        | model
+        | StrOutputParser()
+        )
+        if len(relevant_images) !=0:
+            pass
+        else:
+            relevant_images = ["No Image To Display..."]
+        answer= chain.invoke(question)
+        return render_template("index.html", results= answer, image = relevant_images[0])
+
 if __name__ == '__main__':
-    raw_pdf_elements= get_elements("HKDSE_PHYSICS_PAST_PAPER_1_ENG.pdf")
-    table_elements, text_elements, table_summaries, text_summaries = extract_elements(raw_pdf_elements)
-    for i in os.listdir(output_path):
-        if i.endswith(('.png', '.jpg', '.jpeg')):
-            image_path = os.path.join(output_path, i)
-            encoded_image = encode_image(image_path)
-            image_elements.append(encoded_image)
-            summary = summarize_image(encoded_image)
-            image_summaries.append(summary)
-    vectorstore =vectorize(table_elements, text_elements, table_summaries, text_summaries)
-    q = "As shown above, a ray of light travels from medium 1 to medium 2, and then enters medium 3. The boundaries are parallel to each other. Arrange the speed of light, c, in the three media in ascending order."
-    ans, rel_img = answer(q, vectorstore)
+    app.run(debug= True, host='0.0.0.0', port=5000)
+
+
+# if __name__ == '__main__':
+#     raw_pdf_elements= get_elements("HKDSE_PHYSICS_PAST_PAPER_1_ENG.pdf")
+#     table_elements, text_elements, table_summaries, text_summaries = extract_elements(raw_pdf_elements)
+#     for i in os.listdir(output_path):
+#         if i.endswith(('.png', '.jpg', '.jpeg')):
+#             image_path = os.path.join(output_path, i)
+#             encoded_image = encode_image(image_path)
+#             image_elements.append(encoded_image)
+#             summary = summarize_image(encoded_image)
+#             image_summaries.append(summary)
+#     vectorstore =vectorize(table_elements, text_elements, table_summaries, text_summaries)
+#     q = "As shown above, a ray of light travels from medium 1 to medium 2, and then enters medium 3. The boundaries are parallel to each other. Arrange the speed of light, c, in the three media in ascending order."
+#     ans, rel_img = answer(q, vectorstore)

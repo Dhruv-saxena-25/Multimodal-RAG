@@ -159,3 +159,9 @@ cython_debug/
 images
 imgs 
 app1.py
+faiss
+main.py
+prac.ipynb
+Multimodal_RAG_Local.ipynb
+Multimodal_RAG.ipynb
+docs
