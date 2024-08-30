@@ -30,7 +30,10 @@ uvicorn app:app
 ## Install dependencies on Windows
 
 ```
-https://github.com/oschwartz10612/poppler-windows/releases/tag/v24.07.0-0
+Install poppler on windows and set the environment variable path.
+1. https://github.com/oschwartz10612/poppler-windows/releases/download/v24.07.0-0/Release-24.07.0-0.zip
+Install Tessaract-ocr on windows and set the environment variable path.
+2. https://github.com/UB-Mannheim/tesseract/releases/download/v5.4.0.20240606/tesseract-ocr-w64-setup-5.4.0.20240606.exe
 ```
 
 
