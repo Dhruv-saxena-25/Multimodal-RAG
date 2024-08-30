@@ -32,7 +32,7 @@ uvicorn app:app
 1. Install poppler on windows and set the environment variable path.
 - Unzip the downloaded folder.
 - In C drive goto Program Files (x86) and create a folder name `poppler` and all the files from the uziped folder.
-- 'C:\Program Files (x86)\poppler\Library\bin' add this path to environment variables.
+- `C:\Program Files (x86)\poppler\Library\bin` add this path to environment variables.
 
 ```
 https://github.com/oschwartz10612/poppler-windows/releases/download/v24.07.0-0/Release-24.07.0-0.zip
