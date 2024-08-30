@@ -150,10 +150,7 @@ Answer:
 """
 prompt = ChatPromptTemplate.from_template(prompt_template)
 
-# embedding=GoogleGenerativeAIEmbeddings(model="models/embedding-001")
 model = ChatGoogleGenerativeAI(temperature=0.5, model="gemini-1.5-pro")
-
-# embedding = OpenAIEmbeddings()
 # model = ChatOpenAI(temperature=0.5, model="gpt-4", max_tokens=1024)
 
 
