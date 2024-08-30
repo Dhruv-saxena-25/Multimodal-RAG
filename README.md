@@ -27,6 +27,12 @@ python app.py
 uvicorn app:app
 ``` -->
 
+## Install dependencies on Windows
+
+```
+https://github.com/oschwartz10612/poppler-windows/releases/tag/v24.07.0-0
+```
+
 
 
 ### To know about Multimodal RAG
