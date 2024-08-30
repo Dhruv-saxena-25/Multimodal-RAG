@@ -158,10 +158,13 @@ cython_debug/
 # directory
 images
 imgs 
-app1.py
+app11.py
 faiss
-main.py
+mains.py
 prac.ipynb
 Multimodal_RAG_Local.ipynb
 Multimodal_RAG.ipynb
 docs
+faiss_index
+tt.txt
+venv

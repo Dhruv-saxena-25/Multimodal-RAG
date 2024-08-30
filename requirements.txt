@@ -12,7 +12,9 @@ langchain_community
 tiktoken
 openai
 flask
+flask_cors
 unstructured[all-docs] 
 pydantic 
 lxml 
 opencv-python
+tqdm

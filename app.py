@@ -1,13 +1,13 @@
 import os
 import uuid
 import base64
+import tqdm as notebook_tqdm
 from unstructured.partition.pdf import partition_pdf
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain.schema.messages import HumanMessage, SystemMessage
 from langchain.schema.document import Document
 from langchain_community.vectorstores import FAISS
-from langchain.chains import LLMChain
 from langchain_core.output_parsers import StrOutputParser
 from langchain.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
@@ -16,6 +16,8 @@ from werkzeug.utils import secure_filename
 import warnings
 warnings.filterwarnings("ignore")
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
+from langchain.chat_models import ChatOpenAI
+from langchain.embeddings import OpenAIEmbeddings
 
 documents = []
 retrieve_contents = []
@@ -41,11 +43,14 @@ def extract_elements(raw_pdf_elements):
 
     text_summaries = []
     table_summaries = []
+
     summary_prompt = """
     Summarize the following {element_type}:
     {element}
     """
-    model = ChatGoogleGenerativeAI(temperature=0, model="gemini-1.5-pro")
+
+    # model = ChatOpenAI("gpt-3.5-turbo", max_tokens=1024)
+    model = ChatGoogleGenerativeAI(temperature=0, model="gemini-1.5-flash")
     prompt = ChatPromptTemplate.from_template(summary_prompt)
 
     summary_chain = {"element_type": lambda x: x["element_type"], "element": lambda x: x["element"]} | prompt | model | StrOutputParser()
@@ -86,7 +91,8 @@ def summarize_image(encoded_image):
             },
         ])
     ]
-    response = ChatGoogleGenerativeAI(model="gemini-1.5-flash").invoke(prompt)
+    # response = ChatOpenAI(model= "gpt-4-vision", max_tokens=1024).invoke(prompt)
+    response = ChatGoogleGenerativeAI(model="gemini-1.5-flash-001",max_tokens=1024).invoke(prompt)
     return response.content
 
 
@@ -128,6 +134,7 @@ def vectorize(text_elements, text_summaries, table_elements, table_summaries):
         )
         retrieve_contents.append((i, s))
         documents.append(doc)
+    # vectorstore= FAISS.from_documents(documents=documents, embedding=OpenAIEmbeddings())
     vectorstore = FAISS.from_documents(documents=documents, embedding=GoogleGenerativeAIEmbeddings(model="models/embedding-001"))
     vectorstore.save_local("faiss")
     return vectorstore
@@ -141,9 +148,13 @@ Don't answer if you are not sure and decline to answer and say "Sorry, I don't h
 Just return the helpful answer in as much as detailed possible.
 Answer:
 """
-embedding=GoogleGenerativeAIEmbeddings(model="models/embedding-001")
 prompt = ChatPromptTemplate.from_template(prompt_template)
-model = ChatGoogleGenerativeAI(temperature=0, model="gemini-1.5-pro")
+
+# embedding=GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+model = ChatGoogleGenerativeAI(temperature=0.5, model="gemini-1.5-pro")
+
+# embedding = OpenAIEmbeddings()
+# model = ChatOpenAI(temperature=0.5, model="gpt-4", max_tokens=1024)
 
 
 def answer(question, vectorstore):
@@ -196,7 +207,7 @@ def start():
                     image_elements.append(encoded_image)
                     summary = summarize_image(encoded_image)
                     image_summaries.append(summary)
-            vectorstore = vectorize(table_elements, text_elements, table_summaries, text_summaries)
+            vectorize(table_elements, text_elements, table_summaries, text_summaries)
             return render_template("index.html")
 
 # vectorstore =FAISS.load_local("faiss_index", embedding, allow_dangerous_deserialization= True)
